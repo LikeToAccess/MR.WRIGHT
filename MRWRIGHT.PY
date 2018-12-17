@@ -53,7 +53,7 @@ try:
 except NameError:
 	question = input("\nInstall with file? (y/n)\n> ")
 if question.lower().replace(" ","") == "y":
-	install_init("pygame-1.9.4-cp37-cp37m-macosx_10_11_intel.whl")
+	install_init("pygame-1.9.4-cp36-cp36m-macosx_10_11_intel.whl")
 else:
 	install_init("pygame")
 	
