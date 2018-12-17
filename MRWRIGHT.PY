@@ -2,36 +2,76 @@
 #pylint:disable=C0111
 #pylint:disable=C0325
 #pylint:disable=W0312
-import os
-import subprocess
-import sys
+import os, sys
 from time import sleep
+
+
+#============================
+# PYGAME INSTALL \/ \/ \/
+#============================
 try:
 	import pygame
+	has_pygame = True
 except ImportError as e:
-	print(str(e)+"\nfailure, trying subprocess module with whl\n")
+	import pip
+	has_pygame = False
 	try:
-		subprocess.call([sys.executable, "pip", "install", "pygame-1.9.4-cp37-cp37m-macosx_10_11_intel.whl"])
-		import pygame
-		print("\nsuccess with subprocess\n")
-	except Exception as e:
-		print(str(e)+"\nfailure, trying importlib module\n")
-		import importlib
+		print(str(e)+", failed import\n\nYou will have to make a ONE TIME INSTALL on this computer\n")
+		print("python support: {}".format(sys.version_info))
+		import pip._internal
+		if hasattr(pip, "_internal"):
+			supported = pip._internal.pep425tags.get_supported()
+			for index, text in enumerate(supported):
+				ver, plat, ostype = text
+				print("pip support: {}, {}, {}".format(ver,plat,ostype))
+			#sleep(2)
+		else:
+			import wheel.pep425tags
+			print(wheel.pep425tags.get_supported())
+
+	except ImportError as e:
+		print(str(e)+", failed pip info")
+
+def install(package):
+    if hasattr(pip, 'main'):
+        pip.main(['install', package])
+    else:
+        pip._internal.main(['install', package])
+        
+def install_init(module):
+	if not has_pygame:
 		try:
-			importlib.import_module("pygame")
+			import pip.main
+		except:
+			pass
+		try:
+			install(module)
 		except Exception as e:
-			print(str(e)+"\nfailure, trying pip module\n")
-			import pip
-			try:
-				pip.main(['install', "pygame"])
-			except Exception as e:
-				print(str(e)+"\nfailed with pip module\n")
-		finally:
-			try:
-				globals()["pygame"] = importlib.import_module("pygame")
-				import pygame
-			except Exception as e:
-				print(str(e)+"\nfailure, attempting to ignore it and continue\n")
+			print(str(e)+", failed installation")
+try:
+	question = raw_input("\nInstall with file? (y/n)\n> ")
+except NameError:
+	question = input("\nInstall with file? (y/n)\n> ")
+if question.lower().replace(" ","") == "y":
+	install_init("pygame-1.9.4-cp37-cp37m-macosx_10_11_intel.whl")
+else:
+	install_init("pygame")
+	
+try:
+	import pygame
+	has_pygame = True
+except ImportError as e:
+	print(str(e)+", failed installation")#. Attempting last resort")
+'''
+try:
+	os.system("pip install pygame")
+except Exception as e:
+	print e
+'''
+#============================
+# END PYGAME INSTALL /\ /\ /\
+#============================
+ 
 				
 pygame.init()
 print("Instillation Success!")
