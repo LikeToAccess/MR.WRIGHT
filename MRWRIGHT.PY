@@ -119,16 +119,16 @@ def quit_game():
     pygame.quit()
     sys.exit()
 
-##def blitImg(img,x,y,width=None,height=None):
-##    if width and height:
-##        picture = pygame.image.load(img)
-##        picture = pygame.transform.scale(picture,(width,height))
-##
-##        pic_rect = picture.get_rect()
-##        pic_rect = pic_rect.move((x,y))
-##        screen.blit(picture, pic_rect)
-##    else:
-##        screen.blit(pygame.image.load(str(img)),(x,y))
+def blitImg(img,x,y,width=None,height=None):
+    if width and height:
+        picture = pygame.image.load(img)
+        picture = pygame.transform.scale(picture,(width,height))
+
+        pic_rect = picture.get_rect()
+        pic_rect = pic_rect.move((x,y))
+        screen.blit(picture, pic_rect)
+    else:
+        screen.blit(pygame.image.load(str(img)),(x,y))
 
 def blitImg(img,x,y):
     screen.blit(pygame.image.load(str(img)),(x,y))
@@ -375,7 +375,7 @@ def game_menu():
             if event.type == pygame.QUIT:
                 quit_game()
 
-        blitImg("background1.png",0,0)
+        blitImg("background1.png", 0,0, width,height)
         button("Local",  275,540,300,100, yellow, dark_yellow, local_play)
         button("Online", 725,540,300,100, yellow, dark_yellow, online_play)
 
