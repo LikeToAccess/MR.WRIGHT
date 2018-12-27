@@ -225,7 +225,7 @@ def line(color,is_closed,points_list,stroke_width):
 
 def car(car,face,x,y):
     blitImg(car,x,y)
-    #blitImg(face,x+75,y+40)
+    blitImg(face,x+75,y+40)
 
 #============================
 # SCREENS \/ \/ \/
@@ -327,7 +327,7 @@ def local_play(select_done=False):
 
         line(black,False,[(half_width,0),(half_width,height)],10)
         car(player1,face1,x,y)
-        #car(player2,face2,wrightX,wrightY)
+        car(player2,face2,wrightX,wrightY)
 
         y +=  deltaY
         x +=  deltaX
