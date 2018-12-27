@@ -130,8 +130,8 @@ def blitImg(img,x,y,width=None,height=None):
     else:
         screen.blit(pygame.image.load(str(img)),(x,y))
 
-def blitImg(img,x,y):
-    screen.blit(pygame.image.load(str(img)),(x,y))
+##def blitImg(img,x,y):
+##    screen.blit(pygame.image.load(str(img)),(x,y))
 
 def text_objects(text, font):
     textSurface = font.render(text, True, black)
