@@ -176,28 +176,30 @@ def controls(is_online=False):
         global deltaWrightX
         global deltaWrightY
 
+    car_speed = 3
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             quit_game()
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w:
-                deltaY -= 5
+                deltaY -= car_speed
             if event.key == pygame.K_s:
-                deltaY += 5
+                deltaY += car_speed
             if event.key == pygame.K_a:
-                deltaX -= 5
+                deltaX -= car_speed
             if event.key == pygame.K_d:
-                deltaX += 5
+                deltaX += car_speed
 
             if event.key == pygame.K_UP:
-                deltaWrightY -= 5
+                deltaWrightY -= car_speed
             if event.key == pygame.K_LEFT:
-                deltaWrightX -= 5
+                deltaWrightX -= car_speed
             if event.key == pygame.K_DOWN:
-                deltaWrightY += 5
+                deltaWrightY += car_speed
             if event.key == pygame.K_RIGHT:
-                deltaWrightX += 5
+                deltaWrightX += car_speed
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_w:
@@ -353,7 +355,6 @@ def local_play(select_done=False):
         clock.tick(120)
         #average: 210ms
 
-
 def online_play():
     quit_game()
 
@@ -406,3 +407,6 @@ def main_menu():
 
 if __name__ == "__main__":
     main_menu()
+
+pygame.quit()
+quit()
