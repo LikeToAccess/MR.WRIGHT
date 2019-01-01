@@ -143,7 +143,7 @@ def text(text,x,y,size=100):
     TextRect.center = ((x),(y))
     screen.blit(TextSurf, TextRect)
 
-def button(text,x,y,w,h,ic,ac,action=None,params=None,reactive=False):
+def button(text,x,y,w,h,ic,ac,action=None,params=None,reactive=False, sleeptime=0.0):
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
     if x+w > mouse[0] > x and y+h > mouse[1] > y:
@@ -152,6 +152,7 @@ def button(text,x,y,w,h,ic,ac,action=None,params=None,reactive=False):
             if reactive:
                 pygame.draw.rect(screen, bright_green, (x,y,w,h))
             if action != None:
+                sleep(sleeptime)
                 if params:
                     action(params)
                 else:
@@ -232,20 +233,24 @@ def car(car,face,x,y):
 #============================
 
 def win_screen(player):
+    print(player)
+
+    if player == 1:
+        text("The troublemakers WIN!",   int(width/4),  200, 33)
+    if player == 2:
+        text("Mr.Wright is VICTORIOUS!", int(width/4*3),200, 33)
+
     while True:
-        screen.fill(white)
+        #screen.fill(white)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit_game()
-        if player == 1:
-            text("The troublemakers WIN!", int(width/4),200, 30)
 
-        elif player == 2:
-            text("Mr.Wright is VICTORIOUS!", int(width*1.5),200, 30)
+        button("Back", 725,605,300,100, bright_red,red, player_select, sleeptime=0.3)
 
         pygame.display.update()
         clock.tick(120)
-        quit_game()
+    quit_game()
 
 def player_select():
     nameSize = 26
@@ -306,8 +311,8 @@ def local_play(select_done=False):
     deltaWrightX,deltaWrightY = 0,0
     wrightX,wrightY = 800,200
     x,y = 100,200
-    car_height = 207
-    car_width = 96
+    car_height = 233
+    car_width = 108
     # get head offset and upgrade info from "car1.txt"
 
     box_width = 100
@@ -337,6 +342,9 @@ def local_play(select_done=False):
         if y < -15 or y > height-car_height:  # if car is above or below screen
             crashed_p1 = True
         elif x < 0 or x > half_width-car_width:  # if car is too far left or right
+            crashed_p1 = True
+
+        if y < box_y+box_height and x+car_width > box_x and y+car_height > box_y:
             crashed_p1 = True
 
         if wrightY < -15 or wrightY > height-car_height:  # if car is above or below screen
