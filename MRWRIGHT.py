@@ -66,7 +66,7 @@ if not has_pygame:
 
 
 pygame.init()
-print("Instillation Success!")
+print("Installation Success!")
 screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
 width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
 #print(width, height)  # out: 1280 1024
@@ -81,7 +81,7 @@ white = (255,255,255)
 
 bright_grey = (215,215,215)
 grey = (200,200,200)
-dark_grey = (180,180,180)
+dark_grey = (100,100,100)
 
 bright_yellow = (255,255,0)
 yellow = (255,215,0)
@@ -98,6 +98,7 @@ bright_green = (0,255,0)
 green  = (0,200,0)
 
 light_brown = (160,113,69)
+dark_brown = (100,53,9)
 
 
 #============================
@@ -177,7 +178,7 @@ def controls(is_online=False, boxes_dodged=0):
         global deltaWrightX
         global deltaWrightY
 
-    car_speed = 4.8 + boxes_dodged*0.108
+    car_speed = 4.8 + boxes_dodged*0.3
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -229,6 +230,9 @@ def car(car,face,x,y,offset=(75,40)):
     blitImg(car,x,y)
     blitImg(face,x+x_off,y+y_off)
 
+def stripe(x,y,stripe_width,stripe_leangth):
+    line(yellow,False,[(x,y),(x,y+stripe_leangth)],20)
+
 #============================
 # SCREENS \/ \/ \/
 #============================
@@ -237,7 +241,7 @@ def win_screen(player):
     print(player)
 
     if player == 1:
-        text("The troublemakers WIN!",   int(width/4),  200, 33)
+        text("The Trouble Makers WIN!",   int(width/4),  200, 33)
     if player == 2:
         text("Mr.Wright is VICTORIOUS!", int(width/4*3),200, 33)
 
@@ -248,6 +252,7 @@ def win_screen(player):
                 quit_game()
 
         button("Back", 725,605,300,100, bright_red,red, player_select, sleeptime=0.3)
+        button("Again", 275,605,300,100, bright_green, green, local_play,True)
 
         pygame.display.update()
         clock.tick(120)
@@ -267,7 +272,7 @@ def player_select():
         button("", 95,195,260,310, white,bright_grey, write_file,"player1",True)
         blitImg("player1.png", 100,200)
         text('Mr. Hammes:', 220, 540, nameSize)
-        text('"It\'s pronounced hams."', 220,570, quoteSize)
+        text('"It\'s pronounced \'hams.\'"', 220,570, quoteSize)
 
         # Player2
         button("", 375,195,260,310, white,bright_grey, write_file,"player2",True)
@@ -319,14 +324,20 @@ def local_play(select_done=False):
     box_width = 100
     box_height = 100
     box_x = random.randrange(0,width-int(box_width))
-    box_y = -600
+    box_y = -1000
     box_speed = 3.5
     boxes_dodged = 0
+    p1_dodged = 0
+    p2_dodged = 0
     half_width = width/2
+    stripe_y = 0
 
     while True:
-        screen.fill(white)
-        box(box_x,box_y,box_width,box_height,light_brown)
+        screen.fill(dark_grey)
+        for i in range(-10,10): stripe(width/4,stripe_y+300*i,20,86)
+        stripe_y += box_speed
+
+        box(box_x,box_y,box_width,box_height,dark_brown)
         box_y += box_speed
         #blitImg("road.png",0,box_y)
 
@@ -336,24 +347,35 @@ def local_play(select_done=False):
         car(player1,face1,x,y,(50,10))
         car(player2,face2,wrightX,wrightY)
 
+        text("Dodged: {}".format(p1_dodged),20,10, 14)
+        text("Dodged: {}".format(p2_dodged),width-20,10, 14)
+
         y +=  deltaY
         x +=  deltaX
         wrightY += deltaWrightY
         wrightX += deltaWrightX
 
-        if y < -25 or y+car_height > height+35:  # if car is above or below screen
+        #============================
+        # COLLISION \/ \/ \/
+        #============================
+
+        if y < -50 or y+car_height > height+35:  # if car is above or below screen
             crashed_p1 = True
         elif x < -5 or x > half_width-car_width:  # if car is too far left or right
             crashed_p1 = True
-        if y < box_y+box_height and x+car_width > box_x and y+car_height > box_y:  # if car hits box
+        if y < box_y+box_height and x+car_width > box_x and y+car_height > box_y and x < box_x:  # if car hits box
             crashed_p1 = True
 
-        if wrightY < -25 or wrightY > height-car_height+35:  # if car is above or below screen
+        if wrightY < -50 or wrightY > height-car_height+35:  # if car is above or below screen
             crashed_p2 = True
         elif wrightX < half_width or wrightX+car_width > width+5:  # if car is too far left or right
             crashed_p2 = True
-        if wrightY < box_y+box_height and x+car_width > box_x and y+car_height > box_y:  # if car hits box
+        if wrightY < box_y+box_height and wrightX+car_width > box_x and wrightY+car_height > box_y and wrightX < box_x:  # if car hits box
             crashed_p2 = True
+
+        #============================
+        # COLLISIONS /\ /\ /\
+        #============================
 
         if crashed_p1 == True:
             win_screen(2)
@@ -363,10 +385,15 @@ def local_play(select_done=False):
         if box_y > height:
             box_x = random.randrange(0,width-int(box_width))
             box_y = 0-box_height
-            box_speed = box_speed*1.009+0.5
+
+            box_speed = box_speed*1.009+0.4
             boxes_dodged += 1
-            box_width += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 2
-            box_height += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 2
+            box_width += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 2.5
+            box_height += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 2.5
+            if box_x > half_width:
+                p2_dodged += 1
+            else:
+                p1_dodged += 1
 
 
 
@@ -377,7 +404,7 @@ def local_play(select_done=False):
 def online_play():
     quit_game()
 
-def campain():
+def campaign():
     quit_game()
 
 def credit():
@@ -411,7 +438,7 @@ def main_menu():
                 quit_game()
 
         button("Play",    275,450,300,100, yellow,     dark_yellow, game_menu)  # width/4.65,height/2.28,width/4.27,height/10.24
-        button("Campain", 725,450,300,100, blue,       dark_blue,   campain)
+        button("Campaign", 725,450,300,100, blue,       dark_blue,   campaign)
         button("Credits", 275,575,300,100, grey,       dark_grey,   credit)
         button("Quit",    725,575,300,100, bright_red, red,         quit_game)
         text("MR.WRIGHT GET OVER HERE", width/2, 190, width/15)
