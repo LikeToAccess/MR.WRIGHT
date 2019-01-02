@@ -328,7 +328,7 @@ def local_play(select_done=False):
         screen.fill(white)
         box(box_x,box_y,box_width,box_height,light_brown)
         box_y += box_speed
-        blitImg("road.png",0,box_y)
+        #blitImg("road.png",0,box_y)
 
         controls(False, boxes_dodged)
 
