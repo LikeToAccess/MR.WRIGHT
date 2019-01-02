@@ -224,9 +224,10 @@ def controls(is_online=False):
 def line(color,is_closed,points_list,stroke_width):
     pygame.draw.lines(screen,color,is_closed,points_list,stroke_width)
 
-def car(car,face,x,y):
+def car(car,face,x,y,offset=(75,40)):
+    x_off, y_off = offset
     blitImg(car,x,y)
-    blitImg(face,x+75,y+40)
+    blitImg(face,x+x_off,y+y_off)
 
 #============================
 # SCREENS \/ \/ \/
@@ -311,8 +312,8 @@ def local_play(select_done=False):
     deltaWrightX,deltaWrightY = 0,0
     wrightX,wrightY = 800,200
     x,y = 100,200
-    car_height = 233
-    car_width = 108
+    car_height = 228  # 233
+    car_width = 98    # 108
     # get head offset and upgrade info from "car1.txt"
 
     box_width = 100
@@ -331,7 +332,7 @@ def local_play(select_done=False):
         controls(is_online=False)
 
         line(black,False,[(half_width,0),(half_width,height)],10)
-        car(player1,face1,x,y)
+        car(player1,face1,x,y,(50,10))
         car(player2,face2,wrightX,wrightY)
 
         y +=  deltaY
@@ -339,23 +340,28 @@ def local_play(select_done=False):
         wrightY += deltaWrightY
         wrightX += deltaWrightX
 
-        if y < -15 or y > height-car_height:  # if car is above or below screen
+        if y < -25 or y+car_height > height+35:  # if car is above or below screen
             crashed_p1 = True
-        elif x < 0 or x > half_width-car_width:  # if car is too far left or right
+        elif x < -5 or x > half_width-car_width:  # if car is too far left or right
+            crashed_p1 = True
+        if y < box_y+box_height and x+car_width > box_x and y+car_height > box_y:  # if car hits box
             crashed_p1 = True
 
-        if y < box_y+box_height and x+car_width > box_x and y+car_height > box_y:
-            crashed_p1 = True
-
-        if wrightY < -15 or wrightY > height-car_height:  # if car is above or below screen
+        if wrightY < -25 or wrightY > height-car_height+35:  # if car is above or below screen
             crashed_p2 = True
-        elif wrightX < half_width or wrightX > width-car_width:  # if car is too far left or right
+        elif wrightX < half_width or wrightX+car_width > width+5:  # if car is too far left or right
+            crashed_p2 = True
+        if wrightY < box_y+box_height and x+car_width > box_x and y+car_height > box_y:  # if car hits box
             crashed_p2 = True
 
         if crashed_p1 == True:
             win_screen(2)
         elif crashed_p2 == True:
             win_screen(1)
+
+        if box_y > height:
+            box_x = random.randrange(0,width-int(box_width))
+            box_y = 0-box_height
 
 
 
