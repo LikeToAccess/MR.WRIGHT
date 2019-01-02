@@ -167,7 +167,7 @@ def button(text,x,y,w,h,ic,ac,action=None,params=None,reactive=False, sleeptime=
 def box(x,y,w,h,c):
     pygame.draw.rect(screen,c,[x,y,w,h])
 
-def controls(is_online=False):
+def controls(is_online=False, boxes_dodged=0):
     if is_online:
         global deltaX
         global deltaY
@@ -177,7 +177,7 @@ def controls(is_online=False):
         global deltaWrightX
         global deltaWrightY
 
-    car_speed = 3
+    car_speed = 4.8 + boxes_dodged*0.108
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -321,15 +321,16 @@ def local_play(select_done=False):
     box_x = random.randrange(0,width-int(box_width))
     box_y = -600
     box_speed = 3.5
-    dodged = 0
+    boxes_dodged = 0
     half_width = width/2
 
     while True:
         screen.fill(white)
         box(box_x,box_y,box_width,box_height,light_brown)
         box_y += box_speed
+        blitImg("road.png",0,box_y)
 
-        controls(is_online=False)
+        controls(False, boxes_dodged)
 
         line(black,False,[(half_width,0),(half_width,height)],10)
         car(player1,face1,x,y,(50,10))
@@ -362,6 +363,10 @@ def local_play(select_done=False):
         if box_y > height:
             box_x = random.randrange(0,width-int(box_width))
             box_y = 0-box_height
+            box_speed = box_speed*1.009+0.5
+            boxes_dodged += 1
+            box_width += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 2
+            box_height += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 2
 
 
 
