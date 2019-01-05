@@ -369,7 +369,7 @@ def credit():
 
 def game_menu():
     sleep(0.2)
-    while True:
+    while True: 
         screen.fill(white)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
