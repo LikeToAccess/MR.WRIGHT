@@ -144,6 +144,11 @@ def text(text,x,y,size=100):
     TextRect.center = ((x),(y))
     screen.blit(TextSurf, TextRect)
 
+def text_uncentered(text,x,y,size=100):
+    largeText = pygame.font.Font("Raleway-Medium.ttf", int(size))
+    TextSurf, TextRect = text_objects((text), largeText)
+    screen.blit(TextSurf, (x,y))
+
 def button(text,x,y,w,h,ic,ac,action=None,params=None,reactive=False, sleeptime=0.0):
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
@@ -230,8 +235,8 @@ def car(car,face,x,y,offset=(75,40)):
     blitImg(car,x,y)
     blitImg(face,x+x_off,y+y_off)
 
-def stripe(x,y,stripe_width,stripe_leangth):
-    line(yellow,False,[(x,y),(x,y+stripe_leangth)],20)
+def stripe(x,y,stripe_width,stripe_leangth,color):
+    line(color,False,[(x,y),(x,y+stripe_leangth)],stripe_width)
 
 #============================
 # SCREENS \/ \/ \/
@@ -241,9 +246,11 @@ def win_screen(player):
     print(player)
 
     if player == 1:
-        text("The Trouble Makers WIN!",   int(width/4),  200, 33)
+        text("The Trouble Makers WIN!", int(width/4),200, 43)  # left wins
+        text("I'm Hit!", int(width/4*3),200, 53)  # right is hit
     if player == 2:
-        text("Mr.Wright is VICTORIOUS!", int(width/4*3),200, 33)
+        text("Mr.Wright is VICTORIOUS!", int(width/4*3),200, 43)  # right wins
+        text("I'm Hit!", int(width/4),200, 53)  # left is hit
 
     while True:
         #screen.fill(white)
@@ -251,8 +258,8 @@ def win_screen(player):
             if event.type == pygame.QUIT:
                 quit_game()
 
-        button("Back", 725,605,300,100, bright_red,red, player_select, sleeptime=0.3)
-        button("Again", 275,605,300,100, bright_green, green, local_play,True)
+        button("Back", width/2+80,605,300,100, bright_red,red, player_select, sleeptime=0.3)
+        button("Again", width/2-380,605,300,100, bright_green, green, local_play,True)
 
         pygame.display.update()
         clock.tick(120)
@@ -317,7 +324,7 @@ def local_play(select_done=False):
     deltaWrightX,deltaWrightY = 0,0
     wrightX,wrightY = 800,200
     x,y = 100,200
-    car_height = 228  # 233
+    car_height = 190  # 233
     car_width = 98    # 108
     # get head offset and upgrade info from "car1.txt"
 
@@ -334,8 +341,24 @@ def local_play(select_done=False):
 
     while True:
         screen.fill(dark_grey)
-        for i in range(-10,10): stripe(width/4,stripe_y+300*i,20,86)
+
+        #============================
+        # ROAD STRIPES \/ \/ \/
+        #============================
+        stripe(20,0, 20,height, yellow)  # left stripe on left side
+        stripe(half_width-25,0, 20,height, white)  # right stripe on left side
+        for i in range(-4,4):
+            stripe(width/4,stripe_y+300*i, 20,86, white)  # mid stripe on left side
+
+        stripe(half_width+25,0, 20,height, white)  # left stripe on right side
+        stripe(width-20,0, 20,height, yellow) # right stripe on right side
+        for i in range(-4,4):
+            stripe(width/4*3,stripe_y+300*i, 20,86, white) # mid stripe on right side
+
         stripe_y += box_speed
+        #============================
+        # ROAD STRIPES /\ /\ /\
+        #============================
 
         box(box_x,box_y,box_width,box_height,dark_brown)
         box_y += box_speed
@@ -347,8 +370,8 @@ def local_play(select_done=False):
         car(player1,face1,x,y,(50,10))
         car(player2,face2,wrightX,wrightY)
 
-        text("Dodged: {}".format(p1_dodged),20,10, 14)
-        text("Dodged: {}".format(p2_dodged),width-20,10, 14)
+        text_uncentered("Dodged: {}".format(p1_dodged),17,11, 18)
+        text_uncentered("Dodged: {}".format(p2_dodged),half_width+22,11, 18)
 
         y +=  deltaY
         x +=  deltaX
@@ -358,21 +381,21 @@ def local_play(select_done=False):
         #============================
         # COLLISION \/ \/ \/
         #============================
-
         if y < -50 or y+car_height > height+35:  # if car is above or below screen
             crashed_p1 = True
         elif x < -5 or x > half_width-car_width:  # if car is too far left or right
             crashed_p1 = True
-        if y < box_y+box_height and x+car_width > box_x and y+car_height > box_y and x < box_x:  # if car hits box
-            crashed_p1 = True
+        if y < box_y+box_height and y+car_height > box_y:  # if car a box
+            if x > box_x and x < box_x+box_width or x+car_width > box_x and x+car_width < box_x+box_width:
+                crashed_p1 = True
 
         if wrightY < -50 or wrightY > height-car_height+35:  # if car is above or below screen
             crashed_p2 = True
         elif wrightX < half_width or wrightX+car_width > width+5:  # if car is too far left or right
             crashed_p2 = True
-        if wrightY < box_y+box_height and wrightX+car_width > box_x and wrightY+car_height > box_y and wrightX < box_x:  # if car hits box
-            crashed_p2 = True
-
+        if wrightY < box_y+box_height and wrightY+car_height > box_y:  # if car a box
+            if wrightX > box_x and wrightX < box_x+box_width or wrightX+car_width > box_x and wrightX+car_width < box_x+box_width:
+                crashed_p2 = True
         #============================
         # COLLISIONS /\ /\ /\
         #============================
@@ -383,18 +406,24 @@ def local_play(select_done=False):
             win_screen(1)
 
         if box_y > height:
-            box_x = random.randrange(0,width-int(box_width))
+            if box_x > half_width:
+                p2_dodged += 1
+            else:
+                p1_dodged += 1
+
+            if random.choice([True,False]):  # decides if box goes on left or right
+                box_x = random.randrange(0,int(half_width)-int(box_width)-10)  # box goes left
+            else:
+                box_x = random.randrange(int(half_width)+10,width-int(box_width))  # box goes right
             box_y = 0-box_height
 
             box_speed = box_speed*1.009+0.4
             boxes_dodged += 1
             box_width += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 2.5
             box_height += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 2.5
-            if box_x > half_width:
-                p2_dodged += 1
-            else:
-                p1_dodged += 1
 
+        if stripe_y+86 > 386:
+            stripe_y = 0
 
 
         pygame.display.update()
