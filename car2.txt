@@ -1,0 +1,5 @@
+offset:
+50|60
+
+base speed:
+4.8

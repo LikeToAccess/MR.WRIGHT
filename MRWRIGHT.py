@@ -110,10 +110,12 @@ def write_file(text,filename="player.txt"):
     f.write(text)
     f.close()
 
-def read_file(filename="player.txt"):
+def read_file(filename="player.txt",line=False):
     f = open(filename, "r")
     data = f.read()
     f.close()
+    if line:
+        data = data.split("\n")[line-1]
     return data
 
 def quit_game():
@@ -173,7 +175,7 @@ def button(text,x,y,w,h,ic,ac,action=None,params=None,reactive=False, sleeptime=
 def box(x,y,w,h,c):
     pygame.draw.rect(screen,c,[x,y,w,h])
 
-def controls(is_online=False, boxes_dodged=0):
+def controls(is_online=False, boxes_dodged=0, speed=4.8):
     if is_online:
         global deltaX
         global deltaY
@@ -183,7 +185,7 @@ def controls(is_online=False, boxes_dodged=0):
         global deltaWrightX
         global deltaWrightY
 
-    car_speed = 4.8 + boxes_dodged*0.3
+    car_speed = speed + boxes_dodged*0.3
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -199,14 +201,15 @@ def controls(is_online=False, boxes_dodged=0):
             if event.key == pygame.K_d:
                 deltaX += car_speed
 
-            if event.key == pygame.K_UP:
-                deltaWrightY -= car_speed
-            if event.key == pygame.K_LEFT:
-                deltaWrightX -= car_speed
-            if event.key == pygame.K_DOWN:
-                deltaWrightY += car_speed
-            if event.key == pygame.K_RIGHT:
-                deltaWrightX += car_speed
+            if not is_online:
+                if event.key == pygame.K_UP:
+                    deltaWrightY -= car_speed
+                if event.key == pygame.K_LEFT:
+                    deltaWrightX -= car_speed
+                if event.key == pygame.K_DOWN:
+                    deltaWrightY += car_speed
+                if event.key == pygame.K_RIGHT:
+                    deltaWrightX += car_speed
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_w:
@@ -218,20 +221,22 @@ def controls(is_online=False, boxes_dodged=0):
             if event.key == pygame.K_d:
                 deltaX = 0
 
-            if event.key == pygame.K_UP:
-                deltaWrightY = 0
-            if event.key == pygame.K_LEFT:
-                deltaWrightX = 0
-            if event.key == pygame.K_DOWN:
-                deltaWrightY = 0
-            if event.key == pygame.K_RIGHT:
-                deltaWrightX = 0
+            if not is_online:
+                if event.key == pygame.K_UP:
+                    deltaWrightY = 0
+                if event.key == pygame.K_LEFT:
+                    deltaWrightX = 0
+                if event.key == pygame.K_DOWN:
+                    deltaWrightY = 0
+                if event.key == pygame.K_RIGHT:
+                    deltaWrightX = 0
 
 def line(color,is_closed,points_list,stroke_width):
     pygame.draw.lines(screen,color,is_closed,points_list,stroke_width)
 
-def car(car,face,x,y,offset=(75,40)):
+def car(car,face,x,y,offset=[75,40]):
     x_off, y_off = offset
+    x_off, y_off = int(x_off), int(y_off)
     blitImg(car,x,y)
     blitImg(face,x+x_off,y+y_off)
 
@@ -326,6 +331,9 @@ def local_play(select_done=False):
     x,y = 100,200
     car_height = 190  # 233
     car_width = 98    # 108
+    player_off = read_file(player1.replace(".png",".txt"), 2).split("|")
+    wright_off = read_file(player2.replace(".png",".txt"), 2).split("|")
+    player_speed = float(read_file(player1.replace(".png",".txt"), 5))
     # get head offset and upgrade info from "car1.txt"
 
     box_width = 100
@@ -364,11 +372,11 @@ def local_play(select_done=False):
         box_y += box_speed
         #blitImg("road.png",0,box_y)
 
-        controls(False, boxes_dodged)
+        controls(False, boxes_dodged, player_speed)
 
         line(black,False,[(half_width,0),(half_width,height)],10)
-        car(player1,face1,x,y,(50,10))
-        car(player2,face2,wrightX,wrightY)
+        car(player1,face1,x,y,player_off)
+        car(player2,face2,wrightX,wrightY,wright_off)
 
         text_uncentered("Dodged: {}".format(p1_dodged),17,11, 18)
         text_uncentered("Dodged: {}".format(p2_dodged),half_width+22,11, 18)
