@@ -251,7 +251,7 @@ def win_screen(player):
     print(player)
 
     if player == 1:
-        text("The Trouble Makers WIN!", int(width/4),200, 43)  # left wins
+        text("Trouble Makers WIN!", int(width/4),200, 43)  # left wins
         text("I'm Hit!", int(width/4*3),200, 53)  # right is hit
     if player == 2:
         text("Mr.Wright is VICTORIOUS!", int(width/4*3),200, 43)  # right wins
