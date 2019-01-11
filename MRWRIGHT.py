@@ -339,7 +339,7 @@ def local_play(select_done=False):
     box_width = 100
     box_height = 100
     box_x = random.randrange(0,width-int(box_width))
-    box_y = -1000
+    box_y = -500
     box_speed = 3.5
     boxes_dodged = 0
     p1_dodged = 0
@@ -425,10 +425,10 @@ def local_play(select_done=False):
                 box_x = random.randrange(int(half_width)+10,width-int(box_width))  # box goes right
             box_y = 0-box_height
 
-            box_speed = box_speed*1.009+0.4
+            box_speed = box_speed*1.009+0.5
             boxes_dodged += 1
-            box_width += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 2.5
-            box_height += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 2.5
+            box_width += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 4
+            box_height += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 4
 
         if stripe_y+86 > 386:
             stripe_y = 0
@@ -499,7 +499,8 @@ def main_menu():
 #============================
 
 if __name__ == "__main__":
-    main_menu()
+    try: main_menu()
+    except Exception as e: print(str(e))
 
 pygame.quit()
 quit()
