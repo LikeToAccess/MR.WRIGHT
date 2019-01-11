@@ -175,7 +175,7 @@ def button(text,x,y,w,h,ic,ac,action=None,params=None,reactive=False, sleeptime=
 def box(x,y,w,h,c):
     pygame.draw.rect(screen,c,[x,y,w,h])
 
-def controls(is_online=False, boxes_dodged=0, speed=1.23):
+def controls(is_online=False, boxes_dodged=0, speed=4.8):
     if is_online:
         global deltaX
         global deltaY
@@ -185,7 +185,7 @@ def controls(is_online=False, boxes_dodged=0, speed=1.23):
         global deltaWrightX
         global deltaWrightY
 
-    car_speed = speed + boxes_dodged*0.3+12
+    car_speed = speed + boxes_dodged*0.3
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -251,7 +251,7 @@ def win_screen(player):
     print(player)
 
     if player == 1:
-        text("Troublemakers Win!", int(width/4),200, 43)  # left wins
+        text("Trouble Makers WIN!", int(width/4),200, 43)  # left wins
         text("I'm Hit!", int(width/4*3),200, 53)  # right is hit
     if player == 2:
         text("Mr.Wright is VICTORIOUS!", int(width/4*3),200, 43)  # right wins
@@ -339,7 +339,7 @@ def local_play(select_done=False):
     box_width = 100
     box_height = 100
     box_x = random.randrange(0,width-int(box_width))
-    box_y = -400
+    box_y = -500
     box_speed = 3.5
     boxes_dodged = 0
     p1_dodged = 0
@@ -391,7 +391,7 @@ def local_play(select_done=False):
         #============================
         if y < -50 or y+car_height > height+35:  # if car is above or below screen
             crashed_p1 = True
-        elif x < -5:  # if car is too far left or right
+        elif x < -5 or x > half_width-car_width:  # if car is too far left or right
             crashed_p1 = True
         if y < box_y+box_height and y+car_height > box_y:  # if car a box
             if x > box_x and x < box_x+box_width or x+car_width > box_x and x+car_width < box_x+box_width:
@@ -399,7 +399,7 @@ def local_play(select_done=False):
 
         if wrightY < -50 or wrightY > height-car_height+35:  # if car is above or below screen
             crashed_p2 = True
-        elif wrightX+car_width > width+5:  # if car is too far left or right
+        elif wrightX < half_width or wrightX+car_width > width+5:  # if car is too far left or right
             crashed_p2 = True
         if wrightY < box_y+box_height and wrightY+car_height > box_y:  # if car a box
             if wrightX > box_x and wrightX < box_x+box_width or wrightX+car_width > box_x and wrightX+car_width < box_x+box_width:
@@ -425,10 +425,10 @@ def local_play(select_done=False):
                 box_x = random.randrange(int(half_width)+10,width-int(box_width))  # box goes right
             box_y = 0-box_height
 
-            box_speed = box_speed*1.02+0.4
+            box_speed = box_speed*1.009+0.5
             boxes_dodged += 1
-            box_width += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 5
-            box_height += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 5
+            box_width += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 4
+            box_height += (random.randrange(1,boxes_dodged+2)+boxes_dodged) / 4
 
         if stripe_y+86 > 386:
             stripe_y = 0
