@@ -1,69 +1,81 @@
 #REMINDER TO USE LOW RES IMAGES ALWAYS
 import os, sys, random
-from time import sleep, time
+import time
+import pygame
+sleep = time.sleep
+time = time.time
 
+
+def error_log(e):
+    f = open("error_log.txt","a")
+    f.write(str(e))
+    f.close()
 
 #============================
 # PYGAME INSTALL \/ \/ \/
 #============================
-try:
-    import pygame
-    has_pygame = True
-except ImportError as e:
-    import pip
-    has_pygame = False
-    try:
-        print(str(e)+", failed import\n\nYou will have to make a ONE TIME INSTALL on this computer\n")
-        print("python support: {}".format(sys.version_info))
-        import pip._internal
-        if hasattr(pip, "_internal"):
-            supported = pip._internal.pep425tags.get_supported()
-            for index, text in enumerate(supported):
-                ver, plat, ostype = text # error here
-                print("pip support: {}, {}, {}".format(ver,plat,ostype))
-		#sleep(2)
-        else:
-            import wheel.pep425tags
-            print(wheel.pep425tags.get_supported())
-    except ImportError as e:
-        print(str(e)+", failed pip info")
-
-def install(package):
-    if hasattr(pip, 'main'):
-        pip.main(['install', package])
-    else:
-        pip._internal.main(['install', package])
-
-def install_init(module):
-    if not has_pygame:
-        try:
-            import pip.main
-        except:
-            pass
-        try:
-            install(module)
-        except Exception as e:
-            print(str(e)+", failed installation")
-
-if not has_pygame:
-    try:
-        question = raw_input("\nInstall with file? (y/n)\n> ")
-    except NameError:
-        question = input("\nInstall with file? (y/n)\n> ")
-    if question.lower().replace(" ","") == "y":
-        install_init("pygame-1.9.4-cp37-cp37m-macosx_10_11_intel.whl")
-    else:
-        install_init("pygame")
-    try:
-        import pygame
-        has_pygame = True
-    except ImportError as e:
-        print(str(e)+", failed installation")#. Attempting last resort")
-
-#============================
-# END PYGAME INSTALL /\ /\ /\
-#============================
-
+##try:
+##    import pygame
+##    has_pygame = True
+##except ImportError as e:
+##    import pip
+##    has_pygame = False
+##    try:
+##        error_log(e)
+##        print(str(e)+", failed import\n\nYou will have to make a ONE TIME INSTALL on this computer\n")
+##        print("python support: {}".format(sys.version_info))
+##        import pip._internal
+##        if hasattr(pip, "_internal"):
+##            supported = pip._internal.pep425tags.get_supported()
+##            for index, text in enumerate(supported):
+##                ver, plat, ostype = text # error here
+##                print("pip support: {}, {}, {}".format(ver,plat,ostype))
+##		#sleep(2)
+##        else:
+##            import wheel.pep425tags
+##            print(wheel.pep425tags.get_supported())
+##    except ImportError as e:
+##        error_log(e)
+##        print(str(e)+", failed pip info")
+##
+##def install(package):
+##    if hasattr(pip, 'main'):
+##        pip.main(['install', package])
+##    else:
+##        pip._internal.main(['install', package])
+##
+##def install_init(module):
+##    if not has_pygame:
+##        try:
+##            import pip.main
+##        except:
+##            pass
+##        try:
+##            install(module)
+##        except Exception as e:
+##            error_log(e)
+##            print(str(e)+", failed installation")
+##
+##if not has_pygame:
+##    try:
+##        question = raw_input("\nInstall with file? (y/n)\n> ")
+##    except NameError:
+##        question = input("\nInstall with file? (y/n)\n> ")
+##    if question.lower().replace(" ","") == "y":
+##        install_init("pygame-1.9.4-cp37-cp37m-macosx_10_11_intel.whl")
+##    else:
+##        install_init("pygame")
+##    try:
+##        import pygame
+##        has_pygame = True
+##    except ImportError as e:
+##        error_log(e)
+##        print(str(e)+", failed installation")#. Attempting last resort")
+##
+###============================
+### END PYGAME INSTALL /\ /\ /\
+###============================
+##
 
 pygame.init()
 print("Installation Success!")
@@ -497,10 +509,11 @@ def main_menu():
 #============================
 # MAIN EXECUTION \/ \/ \/
 #============================
-
-if __name__ == "__main__":
-    try: main_menu()
-    except Exception as e: print(str(e))
+try:
+    main_menu()
+except Exception as e:
+    error_log(e)
+    print(str(e))
 
 pygame.quit()
 quit()
