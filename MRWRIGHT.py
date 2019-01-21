@@ -453,7 +453,7 @@ def local_play(select_done=False):
 def online_play():
     quit_game()
 
-def campaign():
+def bank():
     quit_game()
 
 def credit():
@@ -497,7 +497,7 @@ def main_menu():
                 quit_game()
 
         button("Play",    275,450,300,100, yellow,     dark_yellow, game_menu)  # width/4.65,height/2.28,width/4.27,height/10.24
-        button("Campaign", 725,450,300,100, blue,       dark_blue,   campaign)
+        button("Bank", 725,450,300,100, blue,       dark_blue,   bank)
         button("Credits", 275,575,300,100, grey,       dark_grey,   credit)
         button("Quit",    725,575,300,100, bright_red, red,         quit_game)
         text("MR.WRIGHT GET OVER HERE", width/2, 190, width/15)
