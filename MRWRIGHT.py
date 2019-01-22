@@ -1,84 +1,17 @@
 #REMINDER TO USE LOW RES IMAGES ALWAYS
-import os, sys, random
-import time
-import pygame
-sleep = time.sleep
-time = time.time
-
+import sys, pygame, ftplib, socket, base64
+import random; choice = random.choice
+import os; listdir = os.listdir; getcwd = os.getcwd
+import time; sleep = time.sleep; time = time.time
+import string; alphabet = string.ascii_lowercase; numbers = string.digits
 
 def error_log(e):
     f = open("error_log.txt","a")
-    f.write(str(e))
+    f.write(str(e)+"\n")
     f.close()
 
-#============================
-# PYGAME INSTALL \/ \/ \/
-#============================
-##try:
-##    import pygame
-##    has_pygame = True
-##except ImportError as e:
-##    import pip
-##    has_pygame = False
-##    try:
-##        error_log(e)
-##        print(str(e)+", failed import\n\nYou will have to make a ONE TIME INSTALL on this computer\n")
-##        print("python support: {}".format(sys.version_info))
-##        import pip._internal
-##        if hasattr(pip, "_internal"):
-##            supported = pip._internal.pep425tags.get_supported()
-##            for index, text in enumerate(supported):
-##                ver, plat, ostype = text # error here
-##                print("pip support: {}, {}, {}".format(ver,plat,ostype))
-##		#sleep(2)
-##        else:
-##            import wheel.pep425tags
-##            print(wheel.pep425tags.get_supported())
-##    except ImportError as e:
-##        error_log(e)
-##        print(str(e)+", failed pip info")
-##
-##def install(package):
-##    if hasattr(pip, 'main'):
-##        pip.main(['install', package])
-##    else:
-##        pip._internal.main(['install', package])
-##
-##def install_init(module):
-##    if not has_pygame:
-##        try:
-##            import pip.main
-##        except:
-##            pass
-##        try:
-##            install(module)
-##        except Exception as e:
-##            error_log(e)
-##            print(str(e)+", failed installation")
-##
-##if not has_pygame:
-##    try:
-##        question = raw_input("\nInstall with file? (y/n)\n> ")
-##    except NameError:
-##        question = input("\nInstall with file? (y/n)\n> ")
-##    if question.lower().replace(" ","") == "y":
-##        install_init("pygame-1.9.4-cp37-cp37m-macosx_10_11_intel.whl")
-##    else:
-##        install_init("pygame")
-##    try:
-##        import pygame
-##        has_pygame = True
-##    except ImportError as e:
-##        error_log(e)
-##        print(str(e)+", failed installation")#. Attempting last resort")
-##
-###============================
-### END PYGAME INSTALL /\ /\ /\
-###============================
-##
-
 pygame.init()
-print("Installation Success!")
+print("Init Success!")
 screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
 width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
 #print(width, height)  # out: 1280 1024
@@ -117,6 +50,20 @@ dark_brown = (100,53,9)
 # ESSENTIAL FUNCTIONS \/ \/ \/
 #============================
 
+def b64encode(data):
+	data = base64.b64encode(data.encode("utf-8"))
+	return data.decode('utf8')
+
+def b64decode(data):
+	data = base64.b64decode(data)
+	return data.decode('utf8')
+
+def remove_file(filename="deposit_log.txt"):
+	try:
+		os.remove(filename)
+	except OSError:
+		pass
+
 def write_file(text,filename="player.txt"):
     f = open(filename, "w")
     f.write(text)
@@ -129,6 +76,76 @@ def read_file(filename="player.txt",line=False):
     if line:
         data = data.split("\n")[line-1]
     return data
+
+def append_file(text, filename="deposit_log.txt"):
+	f = open(filename, "a")
+	f.write(text) #text should have a \n before it to create a new line
+	f.close()
+
+def ftp_setup():
+    global ftp
+    count = 0
+    while True:
+        try:
+            ftp = ftplib.FTP("files.000webhost.com")
+            __hidden = b64decode(read_file("act_creds.txt")).split()
+            ftp.login(__hidden[0],__hidden[1])
+            del(__hidden)
+            break
+        except socket.gaierror as e:
+            count += 1
+            error_log(e)
+            print(str(e), count)
+
+def send_file(localfile, serverfile=None):
+    if not serverfile:
+        serverfile = localfile
+    try:
+        f = open(localfile,"rb")
+        ftp.storbinary('STOR '+serverfile, f)
+        f.close()
+    except socket.error as e:
+        error_log(e)
+        print(str(e))
+        recv_file(serverfile)
+        send_file(localfile, serverfile)
+
+def recv_file(filename="textfile.txt"):
+    global count
+    localfile = open(filename, "wb")
+    try:
+        ftp.retrbinary("RETR "+filename, localfile.write, buff)
+        count = 0
+    except Exception as e:
+        if count > 0:
+            ftp.close()
+            ftp_setup()
+        count += 1
+        error_log(e)
+        print(str(e), count)
+        localfile.close()
+        if count >= 5:
+            count = 0
+            #sleep(0.5)
+            #clear()
+            print("***there was an error in the server***")
+            main_menu()
+        else:
+            recv_file(filename)
+    localfile.close()
+    message = read_file(filename)
+    return message
+
+def shorten(text):
+	text = str(text).split(".")
+	text[1] = text[1][:2]
+	if len(text[1]) < 2:
+		text[1] = text[1] + "0"
+	text = ".".join(text)
+	return text
+
+def new_blank(text="No_Name|5.00|"+str(time())):
+	open("log.txt", 'w').write(b64encode(text))
 
 def quit_game():
     pygame.quit()
@@ -254,6 +271,69 @@ def car(car,face,x,y,offset=[75,40]):
 
 def stripe(x,y,stripe_width,stripe_leangth,color):
     line(color,False,[(x,y),(x,y+stripe_leangth)],stripe_width)
+
+def bank_setup():
+    while True:
+        try:
+            listdata = b64decode(read_file("log.txt")).split("|")
+        except IOError as e:
+            error_log(e)
+            print(str(e))
+            new_blank()
+            continue
+        name, last_cash, last_cash_time = listdata
+        last_cash_time, last_cash = float(last_cash_time), float(last_cash)
+        print(name, last_cash, last_cash_time)
+        ftp_setup()
+        break
+    return name, last_cash, last_cash_time
+
+def withdraw():
+    text("WITHDRAW", width/2,150)
+    text("Put in amount to take out:", width/2,200,10)
+    text("COMING SOON!", width/2,300)
+
+    withdraw_amount = []
+    ''''
+    try:
+    	withdraw_amount = float("".join(withdraw_amount))
+    	if withdraw_amount > float(b64decode(read_file("log.txt")).split("|")[1]) or withdraw_amount == 0.0:
+    		text("You don't have that much money")
+    		sleep(1)
+    		withdraw_menu()
+    except ValueError:
+    	home_menu()
+    print("are you sure you want to withdraw '${}'\n(y/n):".format(shorten(withdraw_amount)))
+    proceed = input("> ").replace(" ","").lower()
+    if proceed != "y":
+    	print("\nNo money will be subtracted")
+    	sleep(1)
+    	clear()
+    	withdraw_menu()
+    name, cash, last_time = b64decode(read_file("log.txt")).split("|")
+    code = []
+    for i in range(code_len+1): code.append(choice(alphabet))
+    code = "".join(code)
+    print("\nYOUR CODE: {}".format(code))
+    write_file(code+"|"+str(withdraw_amount),"my_code.txt")
+    recv_file("deposit_log.txt")
+    append_file("\n"+code+"|"+name+"|"+str(withdraw_amount), "deposit_log.txt")
+    send_file("deposit_log.txt")
+    remove_file("deposit_log.txt")
+
+    print("Money transfer complete")
+    cash = float(cash)-withdraw_amount
+    write_file(b64encode(name+"|"+str(cash)+"|"+last_time), "log.txt")
+    print("New balence ${}".format(shorten(cash)))
+    '''
+    pygame.display.update()
+    clock.tick(120)
+
+def deposit():
+    quit_game()
+
+def info():
+    quit_game()
 
 #============================
 # SCREENS \/ \/ \/
@@ -454,7 +534,25 @@ def online_play():
     quit_game()
 
 def bank():
-    quit_game()
+    sleep(0.3)
+    name, cash, last_cash_time = bank_setup()
+
+    while True:
+        screen.fill(white)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit_game()
+
+        text_uncentered("{}: ${}".format(name,shorten(cash)), 10,10, 20)
+        text("THE BANK", width/2,150)
+        button("Deposit", 275,450,300,100, grey,dark_grey, deposit)
+        button("Withdraw", 725,450,300,100, grey,dark_grey, withdraw)
+        button("Bank Info", 275,575,300,100, blue,dark_blue, info)
+        button("Back", 725,575,300,100, bright_red,red, main_menu)
+
+        pygame.display.update()
+        clock.tick(120)
+
 
 def credit():
     quit_game()
@@ -472,6 +570,8 @@ def shop_menu():
                 quit_game()
 
         #blitImg()
+        pygame.display.update()
+        clock.tick(120)
 
 def game_menu():
     sleep(0.2)
