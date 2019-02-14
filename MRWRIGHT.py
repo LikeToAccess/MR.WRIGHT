@@ -180,6 +180,9 @@ def text_uncentered(text,x,y,size=100):
     TextSurf, TextRect = text_objects((text), largeText)
     screen.blit(TextSurf, (x,y))
 
+def rect(x,y,w,h,c):
+    pygame.draw.rect(screen,c, (x,y,w,h))
+
 def button(text,x,y,w,h,ic,ac,action=None,params=None,reactive=False, sleeptime=0.0):
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
@@ -191,9 +194,9 @@ def button(text,x,y,w,h,ic,ac,action=None,params=None,reactive=False, sleeptime=
             if action != None:
                 sleep(sleeptime)
                 if params:
-                    action(params)
+                    return action(params)
                 else:
-                    action()
+                    return action()
     else:
         pygame.draw.rect(screen, ic,(x,y,w,h))
     smallText = pygame.font.Font("Raleway-Medium.ttf",int(width/28))  # 45
@@ -288,46 +291,68 @@ def bank_setup():
         break
     return name, last_cash, last_cash_time
 
+def tuple_check(data):
+    if data == tuple(data): return True
+    else: return False
+
 def withdraw():
-    text("WITHDRAW", width/2,150)
-    text("Put in amount to take out:", width/2,200,10)
-    text("COMING SOON!", width/2,300)
+    sleep(0.2)
+    while True:
+        screen.fill(white)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit_game()
 
-    withdraw_amount = []
-    ''''
-    try:
-    	withdraw_amount = float("".join(withdraw_amount))
-    	if withdraw_amount > float(b64decode(read_file("log.txt")).split("|")[1]) or withdraw_amount == 0.0:
-    		text("You don't have that much money")
-    		sleep(1)
-    		withdraw_menu()
-    except ValueError:
-    	home_menu()
-    print("are you sure you want to withdraw '${}'\n(y/n):".format(shorten(withdraw_amount)))
-    proceed = input("> ").replace(" ","").lower()
-    if proceed != "y":
-    	print("\nNo money will be subtracted")
-    	sleep(1)
-    	clear()
-    	withdraw_menu()
-    name, cash, last_time = b64decode(read_file("log.txt")).split("|")
-    code = []
-    for i in range(code_len+1): code.append(choice(alphabet))
-    code = "".join(code)
-    print("\nYOUR CODE: {}".format(code))
-    write_file(code+"|"+str(withdraw_amount),"my_code.txt")
-    recv_file("deposit_log.txt")
-    append_file("\n"+code+"|"+name+"|"+str(withdraw_amount), "deposit_log.txt")
-    send_file("deposit_log.txt")
-    remove_file("deposit_log.txt")
+        withdraw_amount = []
+        rectX, rectY = 900, 200
+        rect(rectX,rectY, 325,500, bright_grey)
+        num_button = lambda t,x,y,w=90,h=90,ic=bright_grey,ac=grey: button(t,x,y,w,h,ic,ac,write_file,(""))
 
-    print("Money transfer complete")
-    cash = float(cash)-withdraw_amount
-    write_file(b64encode(name+"|"+str(cash)+"|"+last_time), "log.txt")
-    print("New balence ${}".format(shorten(cash)))
-    '''
-    pygame.display.update()
-    clock.tick(120)
+        count = 0
+        for y in range(1,4):
+            for x in range(1,4):
+                count += 1
+                num_button(str(count),rectX+x*90,rectY+y*90)
+
+
+        text("WITHDRAW", width/2,50,50)
+        text("Put in amount to take out:", width/2,100,28)
+        text("COMING SOON!", width/2,300)
+
+        ''''
+        try:
+        	withdraw_amount = float("".join(withdraw_amount))
+        	if withdraw_amount > float(b64decode(read_file("log.txt")).split("|")[1]) or withdraw_amount == 0.0:
+        		text("You don't have that much money")
+        		sleep(1)
+        		withdraw_menu()
+        except ValueError:
+        	home_menu()
+        print("are you sure you want to withdraw '${}'\n(y/n):".format(shorten(withdraw_amount)))
+        proceed = input("> ").replace(" ","").lower()
+        if proceed != "y":
+        	print("\nNo money will be subtracted")
+        	sleep(1)
+        	clear()
+        	withdraw_menu()
+        name, cash, last_time = b64decode(read_file("log.txt")).split("|")
+        code = []
+        for i in range(code_len+1): code.append(choice(alphabet))
+        code = "".join(code)
+        print("\nYOUR CODE: {}".format(code))
+        write_file(code+"|"+str(withdraw_amount),"my_code.txt")
+        recv_file("deposit_log.txt")
+        append_file("\n"+code+"|"+name+"|"+str(withdraw_amount), "deposit_log.txt")
+        send_file("deposit_log.txt")
+        remove_file("deposit_log.txt")
+
+        print("Money transfer complete")
+        cash = float(cash)-withdraw_amount
+        write_file(b64encode(name+"|"+str(cash)+"|"+last_time), "log.txt")
+        print("New balence ${}".format(shorten(cash)))
+        '''
+        pygame.display.update()
+        clock.tick(120)
 
 def deposit():
     quit_game()
@@ -534,7 +559,6 @@ def online_play():
     quit_game()
 
 def bank():
-    sleep(0.3)
     name, cash, last_cash_time = bank_setup()
 
     while True:
@@ -545,8 +569,8 @@ def bank():
 
         text_uncentered("{}: ${}".format(name,shorten(cash)), 10,10, 20)
         text("THE BANK", width/2,150)
-        button("Deposit", 275,450,300,100, grey,dark_grey, deposit)
-        button("Withdraw", 725,450,300,100, grey,dark_grey, withdraw)
+        button("Deposit", 275,450,300,100, yellow,dark_yellow, deposit)
+        button("Withdraw", 725,450,300,100, yellow,dark_yellow, withdraw)
         button("Bank Info", 275,575,300,100, blue,dark_blue, info)
         button("Back", 725,575,300,100, bright_red,red, main_menu)
 
