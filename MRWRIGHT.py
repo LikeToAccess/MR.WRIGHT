@@ -4,11 +4,7 @@ import random; choice = random.choice
 import os; listdir = os.listdir; getcwd = os.getcwd
 import time; sleep = time.sleep; time = time.time
 import string; alphabet = string.ascii_lowercase; numbers = string.digits
-
-def error_log(e):
-    f = open("error_log.txt","a")
-    f.write(str(e)+"\n")
-    f.close()
+from HelperModule import *
 
 pygame.init()
 print("Init Success!")
@@ -49,100 +45,6 @@ dark_brown = (100,53,9)
 #============================
 # ESSENTIAL FUNCTIONS \/ \/ \/
 #============================
-
-def b64encode(data):
-	data = base64.b64encode(data.encode("utf-8"))
-	return data.decode('utf8')
-
-def b64decode(data):
-	data = base64.b64decode(data)
-	return data.decode('utf8')
-
-def remove_file(filename="deposit_log.txt"):
-	try:
-		os.remove(filename)
-	except OSError:
-		pass
-
-def write_file(text,filename="player.txt"):
-    f = open(filename, "w")
-    f.write(text)
-    f.close()
-
-def read_file(filename="player.txt",line=False):
-    f = open(filename, "r")
-    data = f.read()
-    f.close()
-    if line:
-        data = data.split("\n")[line-1]
-    return data
-
-def append_file(text, filename="deposit_log.txt"):
-	f = open(filename, "a")
-	f.write(text) #text should have a \n before it to create a new line
-	f.close()
-
-def ftp_setup():
-    global ftp
-    count = 0
-    while True:
-        try:
-            ftp = ftplib.FTP("files.000webhost.com")
-            __hidden = b64decode(read_file("act_creds.txt")).split()
-            ftp.login(__hidden[0],__hidden[1])
-            del(__hidden)
-            break
-        except socket.gaierror as e:
-            count += 1
-            error_log(e)
-            print(str(e), count)
-
-def send_file(localfile, serverfile=None):
-    if not serverfile:
-        serverfile = localfile
-    try:
-        f = open(localfile,"rb")
-        ftp.storbinary('STOR '+serverfile, f)
-        f.close()
-    except socket.error as e:
-        error_log(e)
-        print(str(e))
-        recv_file(serverfile)
-        send_file(localfile, serverfile)
-
-def recv_file(filename="textfile.txt"):
-    global count
-    localfile = open(filename, "wb")
-    try:
-        ftp.retrbinary("RETR "+filename, localfile.write, buff)
-        count = 0
-    except Exception as e:
-        if count > 0:
-            ftp.close()
-            ftp_setup()
-        count += 1
-        error_log(e)
-        print(str(e), count)
-        localfile.close()
-        if count >= 5:
-            count = 0
-            #sleep(0.5)
-            #clear()
-            print("***there was an error in the server***")
-            main_menu()
-        else:
-            recv_file(filename)
-    localfile.close()
-    message = read_file(filename)
-    return message
-
-def shorten(text):
-	text = str(text).split(".")
-	text[1] = text[1][:2]
-	if len(text[1]) < 2:
-		text[1] = text[1] + "0"
-	text = ".".join(text)
-	return text
 
 def new_blank(text="No_Name|5.00|"+str(time())):
 	open("log.txt", 'w').write(b64encode(text))
@@ -275,26 +177,6 @@ def car(car,face,x,y,offset=[75,40]):
 def stripe(x,y,stripe_width,stripe_leangth,color):
     line(color,False,[(x,y),(x,y+stripe_leangth)],stripe_width)
 
-def bank_setup():
-    while True:
-        try:
-            listdata = b64decode(read_file("log.txt")).split("|")
-        except IOError as e:
-            error_log(e)
-            print(str(e))
-            new_blank()
-            continue
-        name, last_cash, last_cash_time = listdata
-        last_cash_time, last_cash = float(last_cash_time), float(last_cash)
-        print(name, last_cash, last_cash_time)
-        ftp_setup()
-        break
-    return name, last_cash, last_cash_time
-
-def tuple_check(data):
-    if data == tuple(data): return True
-    else: return False
-
 def withdraw():
     sleep(0.2)
     while True:
@@ -328,7 +210,7 @@ def withdraw():
         		withdraw_menu()
         except ValueError:
         	home_menu()
-        print("are you sure you want to withdraw '${}'\n(y/n):".format(shorten(withdraw_amount)))
+        print("are you sure you want to withdraw '${}'\n(y/n):".format(cash_format(withdraw_amount)))
         proceed = input("> ").replace(" ","").lower()
         if proceed != "y":
         	print("\nNo money will be subtracted")
@@ -349,10 +231,10 @@ def withdraw():
         print("Money transfer complete")
         cash = float(cash)-withdraw_amount
         write_file(b64encode(name+"|"+str(cash)+"|"+last_time), "log.txt")
-        print("New balence ${}".format(shorten(cash)))
+        print("New balence ${}".format(cash_format(cash)))
         '''
-        pygame.display.update()
-        clock.tick(120)
+        pygame.display.flip()
+        clock.tick(60)
 
 def deposit():
     quit_game()
@@ -383,8 +265,8 @@ def win_screen(player):
         button("Back", width/2+80,605,300,100, bright_red,red, player_select, sleeptime=0.3)
         button("Again", width/2-380,605,300,100, bright_green, green, local_play,True)
 
-        pygame.display.update()
-        clock.tick(120)
+        pygame.display.flip()
+        clock.tick(60)
     quit_game()
 
 def player_select():
@@ -409,7 +291,7 @@ def player_select():
         text('Lucas Farrar-Collins:', 500, 540, nameSize)
         text('"Give me your food!"', 500,570, quoteSize)
 
-        # Player3
+        # Player35
         button("", 655,195,260,310, white,bright_grey, write_file,"player3",True)
         blitImg("player3.png", 660,200)
         text('Raven Barickman:', 780, 540, nameSize)
@@ -424,8 +306,8 @@ def player_select():
         button("Start", 275,605,300,100, bright_green, green, local_play,True)
         button("Back",  725,605,300,100, bright_red,   red,   main_menu)
 
-        pygame.display.update()
-        clock.tick(120)
+        pygame.display.flip()
+        clock.tick(60)
 
 def local_play(select_done=False):
     if not select_done:
@@ -551,8 +433,8 @@ def local_play(select_done=False):
             stripe_y = 0
 
 
-        pygame.display.update()
-        clock.tick(120)
+        pygame.display.flip()
+        clock.tick(60)
         #average: 210ms
 
 def online_play():
@@ -567,16 +449,15 @@ def bank():
             if event.type == pygame.QUIT:
                 quit_game()
 
-        text_uncentered("{}: ${}".format(name,shorten(cash)), 10,10, 20)
+        text_uncentered("{}: ${}".format(name,cash_format(cash)), 10,10, 20)
         text("THE BANK", width/2,150)
         button("Deposit", 275,450,300,100, yellow,dark_yellow, deposit)
         button("Withdraw", 725,450,300,100, yellow,dark_yellow, withdraw)
         button("Bank Info", 275,575,300,100, blue,dark_blue, info)
         button("Back", 725,575,300,100, bright_red,red, main_menu)
 
-        pygame.display.update()
-        clock.tick(120)
-
+        pygame.display.flip()
+        clock.tick(60)
 
 def credit():
     quit_game()
@@ -594,8 +475,8 @@ def shop_menu():
                 quit_game()
 
         #blitImg()
-        pygame.display.update()
-        clock.tick(120)
+        pygame.display.flip()
+        clock.tick(60)
 
 def game_menu():
     sleep(0.2)
@@ -609,8 +490,8 @@ def game_menu():
         button("Local",  275,540,300,100, yellow, dark_yellow, local_play)
         button("Online", 725,540,300,100, yellow, dark_yellow, online_play)
 
-        pygame.display.update()
-        clock.tick(120)
+        pygame.display.flip()
+        clock.tick(60)
 
 def main_menu():
     sleep(0.2)
@@ -627,8 +508,8 @@ def main_menu():
         text("MR.WRIGHT GET OVER HERE", width/2, 190, width/15)
 
 
-        pygame.display.update()
-        clock.tick(120)
+        pygame.display.flip()
+        clock.tick(60)
 
 #============================
 # MAIN EXECUTION \/ \/ \/
