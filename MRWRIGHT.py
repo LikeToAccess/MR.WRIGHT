@@ -6,6 +6,7 @@ import time; sleep = time.sleep; time = time.time
 import string; alphabet = string.ascii_lowercase; numbers = string.digits
 from HelperModule import *
 
+#startup
 pygame.init()
 print("Init Success!")
 screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
@@ -17,6 +18,7 @@ gameIcon = pygame.image.load('icon1.png')
 pygame.display.set_icon(gameIcon)
 
 #============================
+#define colors
 black = (0,0,0)
 white = (255,255,255)
 
@@ -96,6 +98,7 @@ def button(text,x,y,w,h,ic,ac,action=None,params=None,reactive=False, sleeptime=
             if action != None:
                 sleep(sleeptime)
                 if params:
+                    #print(params)
                     return action(params)
                 else:
                     return action()
@@ -433,7 +436,6 @@ def local_play(select_done=False):
         if stripe_y+86 > 386:
             stripe_y = 0
 
-
         pygame.display.flip()
         clock.tick(60)
         #average: 210ms
@@ -502,12 +504,11 @@ def main_menu():
             if event.type == pygame.QUIT:
                 break
 
-        button("Play",    275,450,300,100, yellow,     dark_yellow, game_menu)  # width/4.65,height/2.28,width/4.27,height/10.24
-        button("Bank", 725,450,300,100, blue,       dark_blue,   bank)
-        button("Credits", 275,575,300,100, grey,       dark_grey,   credit)
-        button("Quit",    725,575,300,100, bright_red, red,         quit_game)
+        button("Play", 275,450,300,100, yellow,dark_yellow, game_menu)  # width/4.65,height/2.28,width/4.27,height/10.24
+        button("Bank", 725,450,300,100, blue,dark_blue, bank)
+        button("Credits", 275,575,300,100, grey,dark_grey, credit)
+        button("Quit", 725,575,300,100, bright_red,red, quit_game)
         text("MR.WRIGHT GET OVER HERE", width/2, 190, width/15)
-
 
         pygame.display.flip()
         clock.tick(60)
@@ -518,8 +519,7 @@ def main_menu():
 try:
     main_menu()
 except Exception as e:
-    error_log(e)
+    error_log(e,False,True)
 
-clear()#
 pygame.quit()
 quit()

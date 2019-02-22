@@ -22,6 +22,7 @@ def error_log(e, full=True,fatal=False):
 	if fatal:
 		raise e
 	elif full:
+		clear()
 		exc_type, exc_value, exc_traceback = sys.exc_info()[:]
 		file = exc_traceback.tb_frame.f_code.co_filename.split("\\")
 		print("{} on line {} in {}".format(e,exc_traceback.tb_lineno,file[len(file)-1]))
@@ -30,7 +31,7 @@ def error_log(e, full=True,fatal=False):
 
 # Function to push data to a file with support for
 #grouped arguments
-def write_file(data,filename, line=1):
+def write_file(data,filename="filename.txt", line=1):
 	if data == tuple(data):
 		if len(data) > 2:
 			line = data[2]
@@ -39,7 +40,7 @@ def write_file(data,filename, line=1):
 	f.write("\n"*(line-1)+str(data))
 	f.close()
 	error_log("wrote data: \"{}\" to file: \"{}\" on line: \"{}\""\
-	.format(data,filename,line))
+	.format(data,filename,line), False)
 
 # Function to grab data from a file with support for
 #grouped arguments
@@ -58,7 +59,7 @@ def read_file(filename, line=0):
 
 # Function to add on to a file with support for grouped
 #arguments
-def append_file(data,filename, newline=True):
+def append_file(data,filename="filename.txt", newline=True):
 	if data == tuple(data):
 		if len(data) > 2:
 			newline = data[2]
@@ -170,9 +171,9 @@ def bank_setup():
 
 def clear():
 	try:
-		os.system("clear")
-	except:
 		os.system("cls")
+	except Exception:
+		os.system("clear")
 
 
 
