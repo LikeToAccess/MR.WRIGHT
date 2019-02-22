@@ -188,7 +188,8 @@ def withdraw():
         withdraw_amount = []
         rectX, rectY = 900, 200
         rect(rectX,rectY, 325,500, bright_grey)
-        num_button = lambda t,x,y,w=90,h=90,ic=bright_grey,ac=grey: button(t,x,y,w,h,ic,ac,write_file,(""))
+        num_button = lambda t,x,y,w=90,h=90,ic=bright_grey,ac=grey: button(t,x,y,w,h,ic,ac,append_file,\
+        (t,"withdrawl_log.txt"))
 
         count = 0
         for y in range(1,4):
@@ -280,25 +281,25 @@ def player_select():
         text("Select Your Trouble Maker!", 650,100,90)
 
         # Player1
-        button("", 95,195,260,310, white,bright_grey, write_file,"player1",True)
+        button("", 95,195,260,310, white,bright_grey, write_file,("player1","player.txt"),True)
         blitImg("player1.png", 100,200)
         text('Mr. Hammes:', 220, 540, nameSize)
         text('"It\'s pronounced \'hams.\'"', 220,570, quoteSize)
 
         # Player2
-        button("", 375,195,260,310, white,bright_grey, write_file,"player2",True)
+        button("", 375,195,260,310, white,bright_grey, write_file,("player2","player.txt"),True)
         blitImg("player2.png", 380,200)
         text('Lucas Farrar-Collins:', 500, 540, nameSize)
         text('"Give me your food!"', 500,570, quoteSize)
 
         # Player35
-        button("", 655,195,260,310, white,bright_grey, write_file,"player3",True)
+        button("", 655,195,260,310, white,bright_grey, write_file,("player3","player.txt"),True)
         blitImg("player3.png", 660,200)
         text('Raven Barickman:', 780, 540, nameSize)
         text('"BBBBVVVVVBVBVBVBBB..."', 780,570, quoteSize)
 
         # Player4
-        button("", 935,195,260,310, white,bright_grey, write_file,"player4",True)
+        button("", 935,195,260,310, white,bright_grey, write_file,("player4","player.txt"),True)
         blitImg("player4.png", 940,200)
         text('Simon Hoska:', 1060, 540, nameSize)
         text('"It\'s Eric time!"', 1060,570, quoteSize)
@@ -499,7 +500,7 @@ def main_menu():
         screen.fill(white)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                quit_game()
+                break
 
         button("Play",    275,450,300,100, yellow,     dark_yellow, game_menu)  # width/4.65,height/2.28,width/4.27,height/10.24
         button("Bank", 725,450,300,100, blue,       dark_blue,   bank)
@@ -518,7 +519,7 @@ try:
     main_menu()
 except Exception as e:
     error_log(e)
-    print(str(e))
 
+clear()#
 pygame.quit()
 quit()

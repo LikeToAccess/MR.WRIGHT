@@ -8,21 +8,23 @@ import base64
 import ftplib
 import os
 import socket
+import sys
 
 ftp_buffer = 4096
 ftp_address = "files.000webhost.com"
 ftp_pass = "f6e7350954aa87f140d656d0a908b010"
 
-
 # Function to write errors to a log and notify the user
-def error_log(e, full=False,fatal=False):
+def error_log(e, full=True,fatal=False):
 	f = open("error_log.txt","a")
 	f.write(str(e)+"\n")
 	f.close()
 	if fatal:
 		raise e
 	elif full:
-		print(e,esys.exc_info()[-1].tb_lineno)
+		exc_type, exc_value, exc_traceback = sys.exc_info()[:]
+		file = exc_traceback.tb_frame.f_code.co_filename.split("\\")
+		print("{} on line {} in {}".format(e,exc_traceback.tb_lineno,file[len(file)-1]))
 	else:
 		print(str(e))
 
@@ -165,6 +167,12 @@ def bank_setup():
         ftp_setup()
         break
     return name, last_cash, last_cash_time
+
+def clear():
+	try:
+		os.system("clear")
+	except:
+		os.system("cls")
 
 
 
